@@ -1,18 +1,20 @@
+//本脚本配合auto.js使用
+//需启用钉钉急速打卡, 打开app即可完成打卡
+//需要设置点亮屏幕即可进入系统, 经测试滑动解锁不稳定, miui 10模拟滑动解锁总是失败
+//需要root权限来关闭钉钉, 如果没有root权限, 可去掉CloseApp的调用
 
-//随机休眠 20 minutes, 避免每次打卡时间都一样
-var nMinutes = 20
 
-randSleep(60*nMinutes)
+//随机休眠 5 minutes, 避免每次打卡时间都一样
+var nMinutes = 5
+
+//randSleep(60*nMinutes)
 //设置缩放为1080p
 SetScale()
 
+DevUnLock()
 CloseApp("钉钉")
 sleep(2000)
-
-DevUnLock()
-
 DDCheckOut()
-
 sleep(5000)
 CloseApp("钉钉")
 
@@ -30,33 +32,36 @@ function DDCheckOut() {
     launchApp("钉钉");
     sleep(9000);
 
-    //while (!click("工作"));  
-    //while (!click("考勤打卡"));  
-    //while (!click("下班打卡"));     
-   
-    click(543, 1856) //工作button
-    sleep(2000)
-    click(100, 1000) //考勤打卡button
-    sleep(2000)
-    click(429, 1102) //下班打卡   
-    sleep(2000)   
+    
+    while (!id("home_bottom_tab_button_work").findOne().click())
+    sleep(1000)
+    
+
+    var dakabutton = desc("考勤打卡").findOne()
+    if (dakabutton==null){
+        console.show()
+        console.log("dakabutton not found ")
+    }
+    while (!dakabutton.click())
+    sleep(1000)
+
+    var checkout = desc("下班打卡").findOne()
+    if (checkout==null){
+        console.show()
+        console.log("checkout not found ")
+    }
+    while (!checkout.click())
+    sleep(1000)
 }
+
 
 
 function DevUnLock(){
-    var ra = new RootAutomator();
-    ra.setScreenMetrics(1080, 1920);
-    events.on('exit', function(){
-        ra.exit();
-    });
-
     device.wakeUp()
-    sleep(1000)
-    //滑动手势进行解锁
-    gesture(500, [300,1692],[300,1363], [300,1102]  )
     sleep(1000)
     home()
 }
+
 
 //随机休眠 [0,n]秒
 function randSleep(nSecs){    
